@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <title>عرض الواقع المعزز - الدالة العكسية</title>
+  
+  <!-- مكتبة A-Frame للعرض ثلاثي الأبعاد -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <!-- مكتبة MindAR لتتبع الصور عبر المتصفح -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+  
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #ui-container {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+    }
+    .btn {
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- زر التحكم بالصوت -->
+  <div id="ui-container">
+    <button id="play-btn" class="btn">🔊 تشغيل الشرح الصوتي</button>
+  </div>
+
+  <!-- مشهد الواقع المعزز -->
+  <a-scene 
+    mindar-image="imageTargetSrc: ./targets.mind;" 
+    color-space="sRGB" 
+    renderer="colorManagement: true, physicallyCorrectLights" 
+    vr-mode-ui="enabled: false" 
+    device-orientation-permission-ui="enabled: false">
+    
+    <a-assets>
+      <!-- ملف الصوت -->
+      <audio id="audio-guide" src="audio.mp3" preload="auto"></audio>
+      <!-- مجسم السفينة العمانية ثلاثي الأبعاد -->
+      <a-asset-item id="dhowModel" src="ship.glb"></a-asset-item>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- العنصر الذي يظهر فوق الصورة عند التعرف عليها -->
+    <a-entity mindar-image-target="targetIndex: 0">
+      
+      <!-- مجسم السفينة مع تحريك خفيف للطفو -->
+      <a-gltf-model 
+        src="#dhowModel" 
+        position="0 0 0.1" 
+        scale="0.2 0.2 0.2" 
+        rotation="90 0 0"
+        animation="property: position; to: 0 0.1 0.1; dir: alternate; dur: 2000; loop: true; easing: easeInOutSine">
+      </a-gltf-model>
+
+      <!-- نصوص طافية توضح المفاهيم -->
+      <a-text 
+        value="مسقط (المجال Domain)" 
+        position="-0.4 0.5 0" 
+        color="#0d6efd" 
+        align="center" 
+        width="2.5">
+      </a-text>
+
+      <a-text 
+        value="صور (المدى Range)" 
+        position="0.4 0.5 0" 
+        color="#dc3545" 
+        align="center" 
+        width="2.5">
+      </a-text>
+
+    </a-entity>
+  </a-scene>
+
+  <script>
+    const playBtn = document.getElementById('play-btn');
+    const audio = document.getElementById('audio-guide');
+
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playBtn.innerText = "⏸️ إيقاف مؤقت";
+      } else {
+        audio.pause();
+        playBtn.innerText = "🔊 تشغيل الشرح الصوتي";
+      }
+    });
+  </script>
+</body>
+</html>
+ 
+
