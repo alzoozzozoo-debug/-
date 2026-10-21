@@ -3,68 +3,35 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta charset="utf-8">
-  <title>عرض الواقع المعزز - الدالة العكسية</title>
+  <title>اختبار الواقع المعزز</title>
   
-  <!-- مكتبة A-Frame للعرض ثلاثي الأبعاد -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <!-- مكتبة MindAR لتتبع الصور عبر المتصفح -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
   
   <style>
-    body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    #ui-container {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 999;
-      text-align: center;
-      width: 90%;
-    }
-    .btn {
-      background-color: #0d6efd;
-      color: white;
-      border: none;
-      padding: 14px 28px;
-      font-size: 18px;
-      font-weight: bold;
-      border-radius: 30px;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-    /* بطاقة نصوص عربية تظهر أعلى الشاشة عند التعرف على الصورة */
-    .ar-label-card {
+    body { margin: 0; overflow: hidden; }
+    #msg-card {
       position: absolute;
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.85);
+      color: #00ffcc;
+      padding: 12px 20px;
+      border-radius: 15px;
       font-size: 16px;
+      font-family: sans-serif;
       z-index: 999;
       display: none;
-      border: 2px solid #0d6efd;
       text-align: center;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border: 1px solid #00ffcc;
     }
   </style>
 </head>
 <body>
 
-  <!-- بطاقة العنوان العربي فوق الشاشة -->
-  <div id="ar-card" class="ar-label-card">
-    🚢 <b>مسقط (المجال) ➔ صور (المدى)</b><br>
-    <small style="color: #ffdd00;">الدالة الأصلية د(س) والدالة العكسية د⁻¹(س)</small>
-  </div>
+  <div id="msg-card">✨ تم التعرف على الصورة: مسقط ➔ صور</div>
 
-  <!-- زر التحكم بالصوت -->
-  <div id="ui-container">
-    <button id="play-btn" class="btn">🔊 تشغيل الشرح الصوتي</button>
-  </div>
-
-  <!-- مشهد الواقع المعزز -->
   <a-scene 
     mindar-image="imageTargetSrc: ./targets.mind;" 
     color-space="sRGB" 
@@ -72,96 +39,26 @@
     vr-mode-ui="enabled: false" 
     device-orientation-permission-ui="enabled: false">
     
-    <a-assets>
-      <audio id="audio-guide" src="audio.mp3" preload="auto"></audio>
-      <a-asset-item id="dhowModel" src="ship.glb"></a-asset-item>
-    </a-assets>
-
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- العنصر المستهدف عند التعرف على الصورة -->
-    <a-entity id="target-entity" mindar-image-target="targetIndex: 0">
-      
-      <!-- مجسم السفينة العمانية -->
-      <a-gltf-model 
-        src="#dhowModel" 
-        position="0 0 0.1" 
-        scale="0.2 0.2 0.2" 
-        rotation="90 0 0"
-        animation="property: position; to: 0 0.1 0.1; dir: alternate; dur: 2000; loop: true; easing: easeInOutSine">
-      </a-gltf-model>
-
-      <!-- لوحة عربية ثلاثية الأبعاد تظهر فوق السفينة -->
-      <a-plane id="label-plane" position="0 0.4 0" width="1.2" height="0.4" material="transparent: true; shader: flat;"></a-plane>
-
+    <a-entity id="target" mindar-image-target="targetIndex: 0">
+      <!-- مكعب ثلاثي الأبعاد بديل للاختبار المباشر -->
+      <a-box position="0 0 0.1" scale="0.3 0.3 0.3" color="#0d6efd"
+             animation="property: rotation; to: 0 360 0; dur: 4000; loop: true; easing: linear">
+      </a-box>
     </a-entity>
   </a-scene>
 
   <script>
-    // دالة تحويل النص العربي إلى صورة ثلاثية الأبعاد
-    function createArabicTextTexture(text1, text2) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 512;
-      canvas.height = 256;
-      const ctx = canvas.getContext('2d');
+    const target = document.getElementById('target');
+    const msgCard = document.getElementById('msg-card');
 
-      // رسم خلفية اللوحة
-      ctx.fillStyle = 'rgba(13, 110, 253, 0.9)';
-      if (ctx.roundRect) {
-        ctx.roundRect(10, 10, 492, 236, 25);
-      } else {
-        ctx.rect(10, 10, 492, 236);
-      }
-      ctx.fill();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 6;
-      ctx.stroke();
-
-      // رسم النص العربي الأول
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 36px Tahoma, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(text1, 256, 95);
-
-      // رسم النص العربي الثاني
-      ctx.fillStyle = '#ffdd00';
-      ctx.font = 'bold 32px Tahoma, sans-serif';
-      ctx.fillText(text2, 256, 170);
-
-      return canvas.toDataURL();
-    }
-
-    // تطبيق اللوحة عند فتح الصفحة
-    document.addEventListener("DOMContentLoaded", () => {
-      const labelPlane = document.getElementById('label-plane');
-      const textureData = createArabicTextTexture("مسقط (المجال) ➔ صور (المدى)", "الدالة العكسية د⁻¹(س)");
-      labelPlane.setAttribute('material', 'src', textureData);
+    target.addEventListener("targetFound", () => {
+      msgCard.style.display = "block";
     });
 
-    // التحكم بظهور بطاقة النصوص عند توجيه الكاميرا للصورة
-    const targetEntity = document.getElementById('target-entity');
-    const arCard = document.getElementById('ar-card');
-
-    targetEntity.addEventListener("targetFound", () => {
-      arCard.style.display = "block";
-    });
-
-    targetEntity.addEventListener("targetLost", () => {
-      arCard.style.display = "none";
-    });
-
-    // تشغيل وإيقاف الصوت
-    const playBtn = document.getElementById('play-btn');
-    const audio = document.getElementById('audio-guide');
-
-    playBtn.addEventListener('click', () => {
-      if (audio.paused) {
-        audio.play();
-        playBtn.innerText = "⏸️ إيقاف مؤقت";
-      } else {
-        audio.pause();
-        playBtn.innerText = "🔊 تشغيل الشرح الصوتي";
-      }
+    target.addEventListener("targetLost", () => {
+      msgCard.style.display = "none";
     });
   </script>
 </body>
